@@ -1,0 +1,19 @@
+CREATE DATABASE produtosdb;
+
+USE produtosdb;
+
+DROP TABLE IF EXISTS `Produtos`;
+
+CREATE TABLE `Produtos`(
+    `ProdutoId` INT AUTO_INCREMENT,
+    `Nome` VARCHAR(80) NOT NULL,
+    `Categoria` VARCHAR(50) NOT NULL,
+    `Preco` DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (`ProdutoId`)
+);
+
+LOCK TABLES `Produtos` WRITE;
+    INSERT INTO `Produtos` VALUES (1,'CANEACAS', 'MATERIAL ESCOLAR1', 6.50);
+    INSERT INTO `Produtos` VALUES (2,'CANEACAS', 'MATERIAL ESCOLAR2', 6.90);
+    INSERT INTO `Produtos` VALUES (3,'CANEACAS', 'MATERIAL ESCOLAR3', 6.10);
+UNLOCK TABLES;
