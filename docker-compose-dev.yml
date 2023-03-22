@@ -1,0 +1,73 @@
+﻿#COMPOSE PARA QUE A PUBLICACAO SEJA REALIZADA DENTRO DO PROPRIO CONTAINER, DIFERENTE DO DOCKER COMPOSE DA RAIZ DO PROJETO,
+#ONDE A PUBLICACAO ESTA SENDO FEITA DO HOST, NA PAST DIST
+
+version: "3"
+
+volumes:
+  produtosdata:
+
+networks:
+  frontend:
+  backend:
+
+services:
+  mysql:
+    container_name: database_mysql
+    image: mysql:latest # Diz ao docker a imagem a ser utilizado para a criacao do container
+    volumes:
+      - produtosdata:/var/lib/mysql # Vincular o volume com o banco
+      - ./_MySQL_Init_Script:/docker-entrypoint-initdb.d # Executa um script para popular o banco
+    networks:
+      - backend
+    environment:
+      - MYSQL_ROOT_PASSWORD=dragao123
+      - bind-address=0.0.0.0
+    ports:
+      - 3306:3306
+
+  applicationmvc1:
+    container_name: mvc_produtos_application_1
+    build: # Indica o inicio da secao build que diz ao docker como criar a imaegm para container deste servico
+      context: . # Define o diretorio do contexto que sera usado para criar a imagem. Usa o diretorio atual do projeto mvc
+      dockerfile: Dockerfile-dev # Especifica o arquivo dockerfile usado para criar a imagem
+    #restart: always # Sempre reinicia o contêiner se ele parar
+    networks:
+      - backend
+      - frontend
+    ports:
+      - 5000:80 # Expoe a porta 5000 para acesso exterior e 80 para outros container
+    environment:
+      - DBHOST=mysql # Cria a variavel de ambiente DBHOST setando o nome do mysql para utilizando na connection string, ao realizar conexao com banco de dados
+    depends_on: # Diz ao docker a ordem que os containers devem ser executados
+      - mysql
+
+  applicationmvc2:
+    container_name: mvc_produtos_application_2
+    build: # Indica o inicio da secao build que diz ao docker como criar a imaegm para container deste servico
+      context: . # Define o diretorio do contexto que sera usado para criar a imagem. Usa o diretorio atual do projeto mvc
+      dockerfile: Dockerfile-dev # Especifica o arquivo dockerfile usado para criar a imagem
+    #restart: always # Sempre reinicia o contêiner se ele parar
+    networks:
+      - backend
+      - frontend
+    ports:
+      - 5001:80 # Expoe a porta 5001 para acesso exterior e 80 para outros container
+    environment:
+      - DBHOST=mysql # Cria a variavel de ambiente DBHOST setando o nome do mysql para utilizando na connection string, ao realizar conexao com banco de dados
+    depends_on: # Diz ao docker a ordem que os containers devem ser executados
+      - mysql
+
+  nginx:
+    image: serverlucas/nginx:latest # Imagem que vai ser criada ao executar o compose por causa das config do nginx no dockerfile
+    container_name: some_nginx
+    build:
+      context: ./ # Raiz do projeto
+      dockerfile: ./nginx/Dockerfile # Imagem com a configuracao do nginx
+    restart: always # Sempre reinicia o contêiner se ele parar
+    networks:
+      - frontend
+    ports:
+      - 8080:80 # Expoe a porta 8000 para acesso exterior e 80 para outros container
+    depends_on:
+      - applicationmvc1
+      - applicationmvc2

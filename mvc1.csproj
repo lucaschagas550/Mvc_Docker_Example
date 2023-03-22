@@ -14,5 +14,8 @@
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.2" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql.Design" Version="1.1.2" />
   </ItemGroup>
-
+  
+  <ItemGroup>
+    <Content Include="Docker\Aplicacao\Dockerfile" />
+  </ItemGroup>
 </Project>

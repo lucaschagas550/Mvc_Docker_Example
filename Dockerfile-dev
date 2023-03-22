@@ -1,0 +1,34 @@
+﻿# A imagem aspnet contem apenas componentes em tempo de execucao
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base 
+
+#Cria a pasta app e a acessa logo temos o path => app/
+WORKDIR /app 
+#EXPOSE 80
+#EXPOSE 443
+
+# A imagem Sdk eh bem maior e contem todas as ferramentas para o build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+# Cria a pasta src e a acessa logo temos o path => app/src
+WORKDIR /src
+# Copia o mvc1.csproj para web/mvc1, cria a pasta e a acessa logo temos o path => app/src/web/mvc1
+COPY ["mvc1.csproj", "web/mvc1/"]
+
+# Restaura os pacotes nuget que existem no mvc1.csproj,  path => app/src/web/mvc1
+RUN dotnet restore "web/mvc1/mvc1.csproj"
+
+# path => app/src/web/mvc1
+WORKDIR "web/mvc1"
+# Copiando o projeto do host para o container
+COPY ./ ./
+# Builda a aplicacao no modo Release e a sua saida sera na pasta /app/build do container
+RUN dotnet build "mvc1.csproj" -c Release -o /app/build
+
+FROM build AS publish
+# publica a aplicacao no modo Release e a sua saida sera na pasta /app/publish do container
+RUN dotnet publish "mvc1.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish ./
+# ENTRYPOINT eh o program.cs(main) do projeto para ser iniciado, mvc1.dll (nome do projeto.dll)
+ENTRYPOINT ["dotnet", "mvc1.dll"]
