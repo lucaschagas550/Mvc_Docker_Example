@@ -12,7 +12,7 @@ networks:
 
 services:
   mysql:
-    container_name: database_mysql
+    container_name: dev_database_mysql
     image: mysql:latest # Diz ao docker a imagem a ser utilizado para a criacao do container
     volumes:
       - produtosdata:/var/lib/mysql # Vincular o volume com o banco
@@ -26,11 +26,11 @@ services:
       - 3306:3306
 
   applicationmvc1:
-    container_name: mvc_produtos_application_1
+    container_name: dev_mvc_produtos_application_1
     build: # Indica o inicio da secao build que diz ao docker como criar a imaegm para container deste servico
       context: . # Define o diretorio do contexto que sera usado para criar a imagem. Usa o diretorio atual do projeto mvc
       dockerfile: Dockerfile-dev # Especifica o arquivo dockerfile usado para criar a imagem
-    #restart: always # Sempre reinicia o contêiner se ele parar
+    restart: always # Sempre reinicia o contêiner se ele parar
     networks:
       - backend
       - frontend
@@ -42,11 +42,11 @@ services:
       - mysql
 
   applicationmvc2:
-    container_name: mvc_produtos_application_2
+    container_name: dev_mvc_produtos_application_2
     build: # Indica o inicio da secao build que diz ao docker como criar a imaegm para container deste servico
       context: . # Define o diretorio do contexto que sera usado para criar a imagem. Usa o diretorio atual do projeto mvc
       dockerfile: Dockerfile-dev # Especifica o arquivo dockerfile usado para criar a imagem
-    #restart: always # Sempre reinicia o contêiner se ele parar
+    restart: always # Sempre reinicia o contêiner se ele parar
     networks:
       - backend
       - frontend
@@ -59,7 +59,7 @@ services:
 
   nginx:
     image: serverlucas/nginx:latest # Imagem que vai ser criada ao executar o compose por causa das config do nginx no dockerfile
-    container_name: some_nginx
+    container_name: dev_some_nginx
     build:
       context: ./ # Raiz do projeto
       dockerfile: ./nginx/Dockerfile # Imagem com a configuracao do nginx

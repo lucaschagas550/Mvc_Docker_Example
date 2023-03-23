@@ -1,4 +1,6 @@
-﻿# A imagem aspnet contem apenas componentes em tempo de execucao
+﻿# https://learn.microsoft.com/en-us/visualstudio/containers/container-build?WT.mc_id=visualstudio_containers_aka_containerfastmode&view=vs-2022
+# A imagem aspnet contem apenas componentes em tempo de execucao
+#Cada comando FROM eh um novo estagio que substitui o anterior/ como se cada fosse uma nova imagem independente e isolada
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base 
 
 #Cria a pasta app e a acessa logo temos o path => app/
@@ -29,6 +31,9 @@ RUN dotnet publish "mvc1.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
+
+#Passando informacoes entre diferentes estagios, permite copiar os arquivos existentes em estagios ou etapas anteriores COPY --from=<nome do estagio>, Copiando da etapa anterior app/publish para /app da fase final
 COPY --from=publish /app/publish ./
+
 # ENTRYPOINT eh o program.cs(main) do projeto para ser iniciado, mvc1.dll (nome do projeto.dll)
 ENTRYPOINT ["dotnet", "mvc1.dll"]
